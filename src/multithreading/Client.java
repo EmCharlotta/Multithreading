@@ -1,5 +1,5 @@
 package multithreading;
-// Не работает ClientReading
+
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
@@ -43,12 +43,22 @@ public class Client {
     }
 
     public void startSending() {
-        ChatMessage chatMessage = new ChatMessage("Информация от сервера: ", "Входит " + name);
+
+        ChatMessage chatMessage = new ChatMessage(name, "");
         while (!chatMessage.getText().equals("exit")) {
             System.out.println("Введите сообщение:");
             String msg = scan.nextLine();
             chatMessage = new ChatMessage(name, msg);
+            if(chatMessage.getText().equals("exit")){
+                chatMessage = new ChatMessage(name, name + "has left the chat");
                 try {
+                    connection.sendChatMessage(chatMessage);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                connection.closeAll();
+            }
+                else try {
                     connection.sendChatMessage(chatMessage);
                 } catch (IOException e) {
                     connection.closeAll();

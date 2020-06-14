@@ -8,18 +8,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Server {
     private int port;
     public ArrayBlockingQueue<ChatMessage> msgList;
-    private static Set<Connection> connections = Collections.synchronizedSet(new HashSet<>());
+    public static Set<Connection> connections = Collections.synchronizedSet(new HashSet<>());
 
     public Server(int port) {
         this.port = port;
         this.msgList = new ArrayBlockingQueue<ChatMessage>(10, true);
-        ServerWriter writer = new ServerWriter(this);
-        writer.start();
+        ServerWriter serverWriter = new ServerWriter(this);
+        serverWriter.start();
     }
 
 
@@ -61,16 +60,14 @@ class ServerWriter extends Thread {
     @Override
     public void run() {
         while (true) {
-            Set<Connection> connections = server.getConnections();
-            System.out.println(connections);
-            Iterator<Connection> iterator = connections.iterator();
             ChatMessage chatMessage = null;
             try {
                 chatMessage = server.getMsgList().take();
+                Set<Connection> connections = server.getConnections();
+                Iterator<Connection> iterator = connections.iterator();
                 while (iterator.hasNext()) {
                     Connection con = iterator.next();
                     con.sendChatMessage(chatMessage);
-                    iterator.remove();
                 }
             } catch (InterruptedException | IOException e) {
                 e.printStackTrace();
@@ -78,17 +75,6 @@ class ServerWriter extends Thread {
         }
     }
 }
-
-//        while (true) {
-//                try {
-//                    chatMessage = (ChatMessage)server.getMsgList().take();
-//                while (connectionIterator.hasNext()) {
-//                        connectionIterator.next().sendChatMessage(chatMessage);
-//                                   }
-//                } catch (InterruptedException |IOException e) {
-//                    e.printStackTrace();
-//            }
-//        }
 
     class ServerReader extends Thread {
         Connection connection;
@@ -101,13 +87,15 @@ class ServerWriter extends Thread {
 
         @Override
         public void run() {
+            System.out.println("Новый поток для чтения клиента запущен");
             while (true) {
                 try {
                     ChatMessage chatMessage = connection.readChatMessage();
                     server.getMsgList().put(chatMessage);
-                } catch (IOException | ClassNotFoundException | InterruptedException e) {
+                } catch (InterruptedException | IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
+
             }
         }
     }

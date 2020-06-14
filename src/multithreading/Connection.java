@@ -15,6 +15,11 @@ public class Connection extends Thread {
         objOut = new ObjectOutputStream(this.socket.getOutputStream());
         objInp = new ObjectInputStream(this.socket.getInputStream());
     }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
     public void sendChatMessage(ChatMessage msg) throws IOException {
         objOut.writeObject(msg);
         objOut.flush();
