@@ -18,6 +18,8 @@ public class ChatMessage implements Serializable {
     public void setSender(String sender) {
         this.sender = sender;
     }
+    public String getSender() { return sender; }
+
     @Override
     public String toString() {
         return  "[" + time + "] " + sender +  ": " + text;

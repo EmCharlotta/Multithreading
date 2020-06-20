@@ -67,10 +67,12 @@ class ServerWriter extends Thread {
                 Iterator<Connection> iterator = connections.iterator();
                 while (iterator.hasNext()) {
                     Connection con = iterator.next();
-                    con.sendChatMessage(chatMessage);
+                    if (!chatMessage.equals(con.getMessage())) {
+                        con.sendChatMessage(chatMessage);
+                    }
                 }
             } catch (InterruptedException | IOException e) {
-                e.printStackTrace();
+                System.out.println("Ошибка в строчке 75");
             }
         }
     }
@@ -88,14 +90,22 @@ class ServerWriter extends Thread {
         @Override
         public void run() {
             System.out.println("Новый поток для чтения клиента запущен");
-            while (true) {
+            while (!connection.getMessage().equals("has left the chat")) {
                 try {
                     ChatMessage chatMessage = connection.readChatMessage();
-                    server.getMsgList().put(chatMessage);
+                    connection.setMessage(chatMessage);
+                    if(chatMessage.getText().equalsIgnoreCase( "exit")){
+                        connection.closeAll();
+                        server.getConnections().remove(connection);
+                        System.out.println(chatMessage.getSender() + " отключился");
+                        chatMessage.setText("has left the chat");
+                        server.getMsgList().put(chatMessage);
+                        Thread.currentThread().interrupt();
+                    }
+                    else server.getMsgList().put(chatMessage);
                 } catch (InterruptedException | IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
+                    System.out.println("Ошибка в строчке 107");
                 }
-
             }
         }
     }

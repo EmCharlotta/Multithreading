@@ -9,6 +9,15 @@ public class Connection extends Thread {
     private Socket socket;
     private ObjectOutputStream objOut;
     private ObjectInputStream objInp;
+    private ChatMessage message= new ChatMessage("","");
+
+    public void setMessage(ChatMessage message) {
+        this.message = message;
+    }
+
+    public ChatMessage getMessage() {
+        return message;
+    }
 
     public Connection(Socket socket) throws IOException {
         this.socket = socket;
@@ -30,9 +39,9 @@ public class Connection extends Thread {
 
     public void closeAll(){
         try {
-            socket.close();
             objInp.close();
             objOut.close();
+            socket.close();
         } catch (IOException e) {
             System.out.println("Подключение не закрылось");
         }

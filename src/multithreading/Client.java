@@ -11,6 +11,11 @@ public class Client {
     private Scanner scan;
     public  Connection connection;
     private String name;
+    ClientReading clientReading;
+
+    public ClientReading getClientReading() {
+        return clientReading;
+    }
 
     public Client(String ip, int port) {
         this.ip = ip;
@@ -25,7 +30,7 @@ public class Client {
         System.out.println("Введите свой ник: ");
         String name = scan.nextLine();
         setName(name);
-        ClientReading clientReading = new ClientReading(this);
+        clientReading = new ClientReading(this);
         clientReading.start();
     }
 
@@ -50,13 +55,14 @@ public class Client {
             String msg = scan.nextLine();
             chatMessage = new ChatMessage(name, msg);
             if(chatMessage.getText().equals("exit")){
-                chatMessage = new ChatMessage(name, name + "has left the chat");
+                this.clientReading.interrupt();
                 try {
                     connection.sendChatMessage(chatMessage);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                connection.closeAll();
+                    connection.closeAll();
+                    } catch (IOException e) {
+                    System.out.println("Ошибка в строчке 63");
+                                    }
+                break;
             }
                 else try {
                     connection.sendChatMessage(chatMessage);
@@ -84,13 +90,12 @@ class ClientReading extends Thread {
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
-
             try {
                 System.out.println(client.getConnection().readChatMessage());
             } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+                System.out.println("Ошибка в строчке 96");
             }
-        }
+                    }
         }
     }
 
