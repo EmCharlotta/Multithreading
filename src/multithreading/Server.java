@@ -100,11 +100,11 @@ class ServerWriter extends Thread {
                         System.out.println(chatMessage.getSender() + " отключился");
                         chatMessage.setText("has left the chat");
                         server.getMsgList().put(chatMessage);
-                        Thread.currentThread().interrupt();
                     }
                     else server.getMsgList().put(chatMessage);
                 } catch (InterruptedException | IOException | ClassNotFoundException e) {
-                    System.out.println("Ошибка в строчке 107");
+                    connection.closeAll();
+                    server.getConnections().remove(connection);
                 }
             }
         }

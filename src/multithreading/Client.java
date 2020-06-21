@@ -93,7 +93,7 @@ class ClientReading extends Thread {
             try {
                 System.out.println(client.getConnection().readChatMessage());
             } catch (IOException | ClassNotFoundException e) {
-                System.out.println("Ошибка в строчке 96");
+                client.getConnection().closeAll();
             }
                     }
         }
